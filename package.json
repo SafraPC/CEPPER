@@ -1,0 +1,24 @@
+{
+  "name": "cepper",
+  "version": "1.0.0",
+  "description": "CEPPER é um projeto interdisciplinar para o ensino superior de Análise e Desenvolvimento de Sistemas na IFSP",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SafraPC/CEPPER.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SafraPC/CEPPER/issues"
+  },
+  "homepage": "https://github.com/SafraPC/CEPPER#readme",
+  "dependencies": {
+    "axios": "^0.21.4",
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
+  }
+}
