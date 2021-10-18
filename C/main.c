@@ -1,17 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <mysql/mysql.h>
 //try catch buffer
-static jmp_buf s_jumpBuffer;
 int main()
 {
-    char *host = "127.0.0.1";
-    char *user = "root";
-    char *password = "admin";
-    char *database = "testedb";
-    int port = 3306;
+    const char *host = "127.0.0.1";
+    const char *user = "root";
+    const char *password = "admin";
+    const char *database = "testedb";
+    const int port = 3306;
     static char *unix_socket = NULL;
-    int flag = 0;
+    const int flag = 0;
 
     //database connection stabilized
     MYSQL *conn;
@@ -32,38 +32,39 @@ int main()
     //If we arrived here, the connection is ok and we can make mysql querys!
     printf("Database contectado..\n\n");
 
-    int selectQuery(char *query)
+    bool selectQuery(char *query)
     {
-        if (!setjmp(s_jumpBuffer))
+        //Making query..
+        if (mysql_query(conn, query))
         {
-            //Making query..
-            mysql_query(conn, query);
-            //Store query result
-            MYSQL_RES *result = mysql_store_result(conn);
-            int num_fields = mysql_num_fields(result);
-            //Get row for show data.
-            MYSQL_ROW row;
-            //feching rows in while, show data
-            while ((row = mysql_fetch_row(result)))
+            //mysql_query returns 1 if returns an error in mysql query.
+            return false;
+        }
+        //Store query result
+        MYSQL_RES *result = mysql_store_result(conn);
+        int num_fields = mysql_num_fields(result);
+        printf("Num fields :  %i", num_fields);
+        //Get row for show data.
+        MYSQL_ROW row;
+        //feching rows in while, show data
+        while ((row = mysql_fetch_row(result)))
+        {
+            //while i its less than num_fields, show for us.
+            for (int i = 0; i < num_fields; i++)
             {
-                //while i its less than num_fields, show for us.
-                for (int i = 0; i < num_fields; i++)
-                {
-                    printf("%s ", row[i] ? row[i] : "NULL");
-                }
-
-                printf("\n");
+                printf("%s ", row[i] ? row[i] : "NULL");
             }
-            //freedom for result!
-            mysql_free_result(result);
-            //Closing connection...
-            mysql_close(conn);
+
+            printf("\n");
         }
-        else
-        {
-        }
+        //freedom for result!
+        mysql_free_result(result);
+        //Closing connection...
+        mysql_close(conn);
+        return true;
     }
 
     selectQuery("select * from test");
+
     return 0;
 }
