@@ -1,7 +1,8 @@
 # depslib dependency file v1.0
-1634066606 source:/home/safra/Documents/github/project/CEPPER/C/main.c
+1634596426 source:/home/safra/Documents/github/project/CEPPER/C/main.c
 	<stdio.h>
 	<stdlib.h>
 	<stdbool.h>
 	<mysql/mysql.h>
+	<time.h>
 
