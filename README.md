@@ -1,12 +1,14 @@
 # CEPPER
+
 CEPPER é um projeto interdisciplinar desenvolvido para a faculdade superior de tecnologia IFSP, onde devemos criar um algoritmo em C e seu devido fluxograma.
 
 # O que é o CEPPER?
+
 CEPPER é um projeto que irá capturar o CEP inserido pelo usuário e devolver suas específicações geográficas, como : Rua, Bairro, Logradouro, IBGE, etc...
 
 #INSTRUÇÕES DE INSTALAÇÃO
 
--------------- 
+---
 
 #Iniciando Server Javascript
 
@@ -22,7 +24,7 @@ npm start
 
 Caso tenha dado tudo certo, nenhuma mensagem de erro apareceu e houve uma mensagem de sucesso indicando que o servidor foi inicializado na porta 4000.
 
--------------------
+---
 
 #Criando Script no Banco
 
@@ -32,16 +34,35 @@ Depois de ter conectado sua IDE ao banco, insira o seguinte script .sql :
 
 create database cepper;
 
+use cepper
+
 create table users(
-id smallint  auto_increment primary key,
+id smallint auto_increment primary key,
 name varchar(40) not null,
 born varchar(11) not null,
 cpf varchar(20) not null,
-email varchar(30) not null,
+email varchar(50) not null,
 pass varchar(30) not null
 );
 
---------------------
+create table ceps(
+id smallint auto_increment primary key,
+logradouro varchar(40),
+bairro varchar(40),
+localidade varchar(40),
+uf varchar(40),
+ibge varchar(40),
+gia varchar(40),
+ddd varchar(40),
+siafi varchar(40)
+);
+
+create table tbquery(
+id smallint auto_increment primary key,
+query varchar(350)
+);
+
+---
 
 #Inicializando programa C
 
@@ -56,7 +77,3 @@ Linux: caso sua distribuição for ubuntu, baixe .rem do site MySQL ou instale v
 CASO SUA DISTRIBUIÇÃO FOR ARCH, A UNICA FORMA É BAIXANDO AS LIBS MYSQL DA COMUNIDADE AUR.
 
 Feito tudo, basta inicializar o projeto no codeblocks (arquivo main.c)
-
-
-
-
