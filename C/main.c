@@ -3,8 +3,8 @@
 #include <stdbool.h>
 #include <mysql/mysql.h>
 #include <time.h>
+#include <string.h>
 
-//try catch buffer
 int main()
 {
     const char *host = "127.0.0.1";
@@ -34,6 +34,8 @@ int main()
     //If we arrived here, the connection is ok and we can make mysql querys!
     printf("Database contectado..\n\n");
 
+    //!Below we have some methods who the program is using
+
     //method for make sql query
     bool cepperQuery(char *query)
     {
@@ -55,7 +57,7 @@ int main()
             //while i its less than num_fields, show for us.
             for (int i = 0; i < num_fields; i++)
             {
-                printf("%s  line : %i\n", row[i] ? row[i] : "NULL",i);
+                printf("%s  line : %i\n", row[i] ? row[i] : "NULL", i);
             }
 
             printf("\n");
@@ -86,7 +88,8 @@ int main()
     bool failOverQuery(char *query, int thetries)
     {
         int tries = 0;
-        if(thetries > 0){
+        if (thetries > 0)
+        {
             tries = thetries;
         }
         if (tries <= 7)
@@ -95,21 +98,87 @@ int main()
             {
                 tries = tries + 1;
                 setTimeout(1000);
-                failOverQuery(query,tries);
+                failOverQuery(query, tries);
             }
             else
             {
                 return true;
             }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    //Verify if exist some error in tberror, if exists then CEP Query failed.
+    bool verifyError()
+    {
+        //Making query..
+        if (mysql_query(conn, "select error from tberror"))
+        {
+            //mysql_query returns 1 if returns an error in mysql query.
+            return true;
+        }
+        MYSQL_RES *result = mysql_store_result(conn);
+        int num_fields = mysql_num_fields(result);
+        //freedom for result!
+        if (num_fields)
+        {
+            mysql_query(conn, "truncate table tberror");
+            mysql_close(conn);
+            mysql_free_result(result);
+            return true;
+        }
+        else
+        {
+            mysql_close(conn);
+            mysql_free_result(result);
+            return false;
+        }
+    }
+
+    bool getCEP(char *cep){
+     const char* query = "select * from ceps where cep = '";
+     char buffer[100];
+     char buffer2[100];
+     strcat(strcpy(buffer2, cep), "'");
+     strcat(strcpy(buffer, query), buffer2);
+     if (mysql_query(conn, buffer))
+     {
+         return false;
+     }
+        MYSQL_RES *result = mysql_store_result(conn);
+        int num_fields = mysql_num_fields(result);
+        if(num_fields > 1){
+        MYSQL_ROW row;
+        char *cepInfos[10] ;
+        while ((row = mysql_fetch_row(result)))
+        {
+            for (int i = 0; i < num_fields; i++)
+            {
+                cepInfos[i] = row[i] ? row[i] : "-";
+            }
+
+        }
+        printf("Informações do CEP : %s\n",cep);
+        printf("\nCEP:  %s",cepInfos[1]);
+        printf("\nLOGRADOURO:  %s ",cepInfos[2]);
+        printf("\nBAIRRO:  %s",cepInfos[3]);
+        printf("\nLOCALIDADE:  %s",cepInfos[4]);
+        printf("\nUF:  %s",cepInfos[5]);
+        printf("\nIBGE:  %s",cepInfos[6]);
+        printf("\nGIA:  %s",cepInfos[7]);
+        printf("\nDDD:  %s",cepInfos[8]);
+        printf("\nSIAFI:  %s",cepInfos[9]);
+
+        mysql_free_result(result);
+        mysql_close(conn);
+        return true;
         }else{
             return false;
         }
     }
-    
-    if(failOverQuery("select * from usersssss",0)){
-        printf("Query executada com sucesso!");
-    }else{
-        printf("Não foi possível executar a query...");
-    }
+    getCEP("13057081");
     return 0;
 }

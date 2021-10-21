@@ -1,19 +1,19 @@
 const axios = require("axios");
 const getCep = async (cep) => {
+	const con = global.con;
 	try {
 		console.log("achei o cep!! ", cep);
 		const { data } = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
-		const con = global.con;
 		if (data) {
-			console.log(data);
 			if (!data.erro) {
 				con.query(
-					`insert into ceps(logradouro,bairro,localidade,uf,ibge,gia,ddd,siafi) values('${data.logradouro}', '${data.bairro}', '${data.localidade}', '${data.uf}', '${data.ibge}', '${data.gia}', '${data.ddd}', '${data.siafi}');`
+					`insert into ceps(cep,logradouro,bairro,localidade,uf,ibge,gia,ddd,siafi) values('${cep}','${data.logradouro}', '${data.bairro}', '${data.localidade}', '${data.uf}', '${data.ibge}', '${data.gia}', '${data.ddd}', '${data.siafi}');`
 				);
 			}
 		}
 	} catch (error) {
-		console.log("Catch getCEP error =>", error);
+		con.query(`truncate table tberror`);
+		con.query(`insert into tberror(error) values('erro')`);
 	}
 };
 module.exports = { getCep };

@@ -47,6 +47,7 @@ pass varchar(30) not null
 
 create table ceps(
 id smallint auto_increment primary key,
+cep varchar(40),
 logradouro varchar(40),
 bairro varchar(40),
 localidade varchar(40),
@@ -60,6 +61,11 @@ siafi varchar(40)
 create table tbquery(
 id smallint auto_increment primary key,
 query varchar(350)
+);
+
+create table tberror(
+id smallint auto_increment primary key,
+error varchar(40)
 );
 
 ---

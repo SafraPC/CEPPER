@@ -1,17 +1,18 @@
 {
-    "C_Cpp.errorSquiggles": "Disabled",
-    "files.associations": {
-        "functional": "c",
-        "array": "c",
-        "hash_map": "c",
-        "deque": "c",
-        "list": "c",
-        "string": "c",
-        "unordered_map": "c",
-        "unordered_set": "c",
-        "vector": "c",
-        "string_view": "c",
-        "initializer_list": "c",
-        "valarray": "c"
-    }
+	"C_Cpp.errorSquiggles": "Disabled",
+	"files.associations": {
+		"functional": "c",
+		"array": "c",
+		"hash_map": "c",
+		"deque": "c",
+		"list": "c",
+		"string": "c",
+		"unordered_map": "c",
+		"unordered_set": "c",
+		"vector": "c",
+		"string_view": "c",
+		"initializer_list": "c",
+		"valarray": "c",
+		"string.h": "c"
+	}
 }
