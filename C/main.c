@@ -121,64 +121,102 @@ int main()
             return true;
         }
         MYSQL_RES *result = mysql_store_result(conn);
-        int num_fields = mysql_num_fields(result);
         //freedom for result!
-        if (num_fields)
+        int num_fields = mysql_num_fields(result);
+
+        MYSQL_ROW row;
+        char *errors[1];
+        errors[0] = false;
+        while ((row = mysql_fetch_row(result)))
         {
+            for (int i = 0; i < num_fields; i++)
+            {
+                errors[i] = row[i] ? row[i] : "-";
+            }
+        }
+        if (errors[0])
+        {
+            printf("\n\nerror : %s", errors[0]);
             mysql_query(conn, "truncate table tberror");
             mysql_close(conn);
             mysql_free_result(result);
-            return true;
+            return true;           
         }
         else
         {
+            printf("\n\n erro: %s",errors[0]);
             mysql_close(conn);
             mysql_free_result(result);
             return false;
         }
     }
 
-    bool getCEP(char *cep){
-     const char* query = "select * from ceps where cep = '";
-     char buffer[100];
-     char buffer2[100];
-     strcat(strcpy(buffer2, cep), "'");
-     strcat(strcpy(buffer, query), buffer2);
-     if (mysql_query(conn, buffer))
-     {
-         return false;
-     }
+    bool getCEP(char *cep)
+    {
+        //getting cep from table ceps
+        const char *query = "select * from ceps where cep = '";
+        char selectQueryAux[100];
+        char selectQuery[100];
+        strcat(strcpy(selectQuery, cep), "'");
+        strcat(strcpy(selectQueryAux, query), selectQuery);
+        if (mysql_query(conn, selectQueryAux))
+        {
+            return false;
+        }
         MYSQL_RES *result = mysql_store_result(conn);
         int num_fields = mysql_num_fields(result);
-        if(num_fields > 1){
+
         MYSQL_ROW row;
-        char *cepInfos[10] ;
+        char *cepInfos[10];
         while ((row = mysql_fetch_row(result)))
         {
             for (int i = 0; i < num_fields; i++)
             {
                 cepInfos[i] = row[i] ? row[i] : "-";
             }
-
         }
-        printf("Informações do CEP : %s\n",cep);
-        printf("\nCEP:  %s",cepInfos[1]);
-        printf("\nLOGRADOURO:  %s ",cepInfos[2]);
-        printf("\nBAIRRO:  %s",cepInfos[3]);
-        printf("\nLOCALIDADE:  %s",cepInfos[4]);
-        printf("\nUF:  %s",cepInfos[5]);
-        printf("\nIBGE:  %s",cepInfos[6]);
-        printf("\nGIA:  %s",cepInfos[7]);
-        printf("\nDDD:  %s",cepInfos[8]);
-        printf("\nSIAFI:  %s",cepInfos[9]);
+        if (cepInfos[1] && cepInfos[3])
+        {
+            //CEP FOUNDED!
+            printf("Informações do CEP : %s\n", cep);
+            printf("\nCEP:  %s", cepInfos[1]);
+            printf("\nLOGRADOURO:  %s ", cepInfos[2]);
+            printf("\nBAIRRO:  %s", cepInfos[3]);
+            printf("\nLOCALIDADE:  %s", cepInfos[4]);
+            printf("\nUF:  %s", cepInfos[5]);
+            printf("\nIBGE:  %s", cepInfos[6]);
+            printf("\nGIA:  %s", cepInfos[7]);
+            printf("\nDDD:  %s", cepInfos[8]);
+            printf("\nSIAFI:  %s", cepInfos[9]);
 
-        mysql_free_result(result);
-        mysql_close(conn);
-        return true;
-        }else{
+            mysql_free_result(result);
+            mysql_close(conn);
+            return true;
+        }
+        else
+        {
+            //Probably CEP isnt registred in table, so, we need to get it.
+            //contact query
+            const char *insertQueryString = "insert into tbquery(query) values('";
+            char insertQueryAux[100];
+            char insertQuery[100];
+            strcat(strcpy(insertQueryAux, insertQueryString), cep);
+            strcat(strcpy(insertQuery, insertQueryAux), "')");
+            printf("%s", insertQuery);
+            if (mysql_query(conn, insertQuery))
+            {
+                printf("\n\nHouve um erro com o banco.");
+                return false;
+            }
+            //WE NEED TO CREATE A LISTENING IN TWO TABLES, TO SEE ERRORS AND RESULTS.
+            setTimeout(1500);
+            //verify errors
+
             return false;
         }
     }
-    getCEP("13057081");
+    
+    getCEP("13057083");
+    
     return 0;
 }
