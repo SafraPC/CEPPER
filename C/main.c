@@ -32,42 +32,9 @@ int main()
         fprintf(stderr, "Error %s [%d]\n", mysql_error(conn), mysql_errno(conn));
     }
     //If we arrived here, the connection is ok and we can make mysql querys!
-    printf("Database contectado..\n\n");
+    printf("Banco de dados contectado..");
 
     //!Below we have some methods who the program is using
-
-    //method for make sql query
-    bool cepperQuery(char *query)
-    {
-        //Making query..
-        if (mysql_query(conn, query))
-        {
-            //mysql_query returns 1 if returns an error in mysql query.
-            return false;
-        }
-        //Store query result
-        MYSQL_RES *result = mysql_store_result(conn);
-        int num_fields = mysql_num_fields(result);
-        printf("Num fields :  %i\n", num_fields);
-        //Get row for show data.
-        MYSQL_ROW row;
-        //feching rows in while, show data
-        while ((row = mysql_fetch_row(result)))
-        {
-            //while i its less than num_fields, show for us.
-            for (int i = 0; i < num_fields; i++)
-            {
-                printf("%s  line : %i\n", row[i] ? row[i] : "NULL", i);
-            }
-
-            printf("\n");
-        }
-        //freedom for result!
-        mysql_free_result(result);
-        //Closing connection...
-        mysql_close(conn);
-        return true;
-    }
 
     //timeout for C wait a little (special for request)
     void setTimeout(int milliSec)
@@ -82,33 +49,6 @@ int main()
         {
             sinceMilli = clock() * 1000 / CLOCKS_PER_SEC;
         } while (sinceMilli <= clockEnd);
-    }
-
-    //failover if database it's over
-    bool failOverQuery(char *query, int thetries)
-    {
-        int tries = 0;
-        if (thetries > 0)
-        {
-            tries = thetries;
-        }
-        if (tries <= 7)
-        {
-            if (!cepperQuery(query))
-            {
-                tries = tries + 1;
-                setTimeout(1000);
-                failOverQuery(query, tries);
-            }
-            else
-            {
-                return true;
-            }
-        }
-        else
-        {
-            return false;
-        }
     }
 
     //Verify if exist some error in tberror, if exists then CEP Query failed.
@@ -136,38 +76,27 @@ int main()
         }
         if (errors[0])
         {
-            printf("\n\nerror : %s", errors[0]);
             mysql_query(conn, "truncate table tberror");
-            mysql_close(conn);
-            mysql_free_result(result);
-            return true;           
+            return true;
         }
         else
         {
-            printf("\n\n erro: %s",errors[0]);
-            mysql_close(conn);
-            mysql_free_result(result);
             return false;
         }
     }
 
-    bool getCEP(char *cep)
+    bool searchCEP(char *searchQuery, char *cep)
     {
-        //getting cep from table ceps
-        const char *query = "select * from ceps where cep = '";
-        char selectQueryAux[100];
-        char selectQuery[100];
-        strcat(strcpy(selectQuery, cep), "'");
-        strcat(strcpy(selectQueryAux, query), selectQuery);
-        if (mysql_query(conn, selectQueryAux))
+        if (mysql_query(conn, searchQuery))
         {
             return false;
         }
         MYSQL_RES *result = mysql_store_result(conn);
         int num_fields = mysql_num_fields(result);
-
         MYSQL_ROW row;
         char *cepInfos[10];
+        cepInfos[1] = NULL;
+        cepInfos[3] = NULL;
         while ((row = mysql_fetch_row(result)))
         {
             for (int i = 0; i < num_fields; i++)
@@ -178,7 +107,7 @@ int main()
         if (cepInfos[1] && cepInfos[3])
         {
             //CEP FOUNDED!
-            printf("Informações do CEP : %s\n", cep);
+            printf("\n\nInformações do CEP : %s\n", cep);
             printf("\nCEP:  %s", cepInfos[1]);
             printf("\nLOGRADOURO:  %s ", cepInfos[2]);
             printf("\nBAIRRO:  %s", cepInfos[3]);
@@ -189,34 +118,75 @@ int main()
             printf("\nDDD:  %s", cepInfos[8]);
             printf("\nSIAFI:  %s", cepInfos[9]);
 
-            mysql_free_result(result);
-            mysql_close(conn);
+            
             return true;
         }
         else
         {
-            //Probably CEP isnt registred in table, so, we need to get it.
-            //contact query
+            return false;
+        }
+    }
+
+    bool getCEP(char *cep)
+    {
+        printf("\n\nAguarde um pouco.. estamos procurando seu CEP");
+        //getting cep from table ceps
+        const char *query = "select * from ceps where cep = '";
+        char selectQueryAux[100];
+        char selectQuery[100];
+        strcat(strcpy(selectQuery, cep), "'");
+        strcat(strcpy(selectQueryAux, query), selectQuery);
+
+        if (searchCEP(selectQueryAux, cep))
+        {
+            return true;
+        }
+        else
+        {
             const char *insertQueryString = "insert into tbquery(query) values('";
             char insertQueryAux[100];
             char insertQuery[100];
             strcat(strcpy(insertQueryAux, insertQueryString), cep);
             strcat(strcpy(insertQuery, insertQueryAux), "')");
-            printf("%s", insertQuery);
             if (mysql_query(conn, insertQuery))
             {
                 printf("\n\nHouve um erro com o banco.");
                 return false;
             }
-            //WE NEED TO CREATE A LISTENING IN TWO TABLES, TO SEE ERRORS AND RESULTS.
-            setTimeout(1500);
-            //verify errors
 
+            for (int i = 0; i < 14; i++)
+            {
+                if (verifyError())
+                {
+                    printf("\n\nPor favor, insira um CEP válido.");
+                    return false;
+                }
+                setTimeout(3000);
+                if (searchCEP(selectQueryAux, cep))
+                {
+                    return true;
+                }
+                else
+                {
+                    if(i+1 >=3){
+                        printf("\n\nInfelizmente não conseguimos localizar seu CEP.");
+                        return false;
+                    }
+                }
+            }
             return false;
         }
     }
-    
-    getCEP("13057083");
-    
+    char *userCEP[20];
+
+    bool app(){
+    printf("\n\nInsira o CEP que deseja buscar\n");
+    printf("CEP:");
+    scanf(" %s",&userCEP);
+    getCEP(userCEP);
+    }
+    while(true){
+    app();
+    }
     return 0;
 }
