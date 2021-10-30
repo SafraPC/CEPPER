@@ -213,17 +213,39 @@ int main()
             return false;
         }
     }
-
+    
+    //Interface for user navigate in login and register.
+    bool initInterface(bool pass){
+        if(!pass){
+        printf("\nSeja bem-vindo ao CEPPER! seu pesquisador de CEPS particular.");
+        printf("\npor-favor, faça seu login o se cadastre para continuar.");
+        }
+        printf("\n- Pressione 0 para realizar seu Login\n- Pressione 1 para realizar um Cadastro\n\n");
+        int pass1_num_pressed = 2;
+        scanf("%i",&pass1_num_pressed);
+        if(pass1_num_pressed == 0){
+            printf("Você selecionou Login!");
+        }else if(pass1_num_pressed == 1){
+            printf("Você selecionou Cadastro!");
+        }else{
+            printf("Por favor, selecione um número válido!");
+            initInterface(true);
+        }
+    }
     //App program to use the function created above
+    
+
     bool app(){
-    char *userCEP[20];
-    printf("\n\nInsira o CEP que deseja buscar\n");
-    printf("CEP:");
-    scanf(" %s",&userCEP);
-    getCEP(userCEP);
+        initInterface(false);
+        // char *userCEP[20];
+        // printf("\n\nInsira o CEP que deseja buscar\n");
+        // printf("CEP:");
+        // scanf(" %s",&userCEP);
+        // getCEP(userCEP);
     }
-    while(true){
     app();
-    }
+    // while(true){
+    // app();
+    // }
     return 0;
 }
