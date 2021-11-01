@@ -40,9 +40,8 @@ int main()
         fprintf(stderr, "Error %s [%d]\n", mysql_error(conn), mysql_errno(conn));
     }
     //If we arrived here, the connection is ok and we can make mysql querys!
-    printf("Banco de dados contectado..");
 
-    //!Below we have some methods who the program is using
+    //!Below we have some methods that the program is using
 
     //timeout for C wait a little (special for request)
     void setTimeout(int milliSec)
@@ -148,6 +147,7 @@ int main()
         }
     }
 
+    //get the cep from database or search CEP in viaCEP external service
     bool getCEP(char *cep)
     {
         printf("\n\nAguarde um pouco.. estamos procurando seu CEP");
@@ -158,14 +158,14 @@ int main()
         //concact string to a right mysql query
         strcat(strcpy(selectQuery, cep), "'");
         strcat(strcpy(selectQueryAux, query), selectQuery);
-        
+
         // if search CEP found our CEP, it will return the CEP in a log
         //so just return true.
         if (searchCEP(selectQueryAux, cep))
         {
             return true;
         }
-        //if the CEP didnt found, we need to Sercht it in the 
+        //if the CEP didnt found, we need to Sercht it in the
         //external Services for found CEP
         else
         {
@@ -203,7 +203,8 @@ int main()
                 else
                 {
                     //Failver reached the limit.. sorry.
-                    if(i+1 >=3){
+                    if (i + 1 >= 3)
+                    {
                         printf("\n\nInfelizmente não conseguimos localizar seu CEP.");
                         return false;
                     }
@@ -213,29 +214,74 @@ int main()
             return false;
         }
     }
-    
+
     //Interface for user navigate in login and register.
-    bool initInterface(bool pass){
-        if(!pass){
-        printf("\nSeja bem-vindo ao CEPPER! seu pesquisador de CEPS particular.");
-        printf("\npor-favor, faça seu login o se cadastre para continuar.");
+    void initInterface(bool pass)
+    {
+        //login interface method
+        void loginInterface()
+        {
+            int accept = NULL;
+            printf("\nDeseja realmente prosseguir para a tela de login?\n-Pressione 0 para prosseguir\n-Pressione 1 para voltar a tela de início\n");
+            scanf("%i", &accept);
+            if (accept == 0)
+            {
+            }
+            else if (accept == 1)
+            {
+                initInterface(true);
+            }
+            else
+            {
+                printf("\nPor favor, insira um item válido.. :");
+                loginInterface();
+            }
+        }
+        void registerInterface()
+        {
+            int accept = NULL;
+            printf("\nDeseja realmente prosseguir para a tela de cadastro?\n-Pressione 0 para prosseguir\n-Pressione 1 para voltar a tela de início\n");
+            scanf("%i", &accept);
+            if (accept == 0)
+            {
+            }
+            else if (accept == 1)
+            {
+                initInterface(true);
+            }
+            else
+            {
+                printf("\nPor favor, insira um item válido.. :");
+                registerInterface();
+            }
+        }
+
+        if (!pass)
+        {
+            printf("Seja bem-vindo ao CEPPER! seu pesquisador de CEPS particular.");
+            printf("\npor-favor, faça seu login ou se cadastre para continuar.");
         }
         printf("\n- Pressione 0 para realizar seu Login\n- Pressione 1 para realizar um Cadastro\n\n");
         int pass1_num_pressed = 2;
-        scanf("%i",&pass1_num_pressed);
-        if(pass1_num_pressed == 0){
-            printf("Você selecionou Login!");
-        }else if(pass1_num_pressed == 1){
-            printf("Você selecionou Cadastro!");
-        }else{
+        scanf("%i", &pass1_num_pressed);
+        if (pass1_num_pressed == 0)
+        {
+            loginInterface();
+        }
+        else if (pass1_num_pressed == 1)
+        {
+            registerInterface();
+        }
+        else
+        {
             printf("Por favor, selecione um número válido!");
             initInterface(true);
         }
     }
     //App program to use the function created above
-    
 
-    bool app(){
+    bool app()
+    {
         initInterface(false);
         // char *userCEP[20];
         // printf("\n\nInsira o CEP que deseja buscar\n");
