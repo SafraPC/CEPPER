@@ -50,8 +50,9 @@ int main()
 
     //!Below we have some methods that the program is using
 
-    void clearScreen(){
-     printf("\e[1;1H\e[2J");
+    void clearScreen()
+    {
+        printf("\e[1;1H\e[2J");
     }
 
     //timeout for C wait a little (special for request)
@@ -138,9 +139,8 @@ int main()
         //if we really found the CEP in database
         if (cepInfos[1] && cepInfos[3])
         {
-        clearScreen();
             //CEP FOUNDED!
-            printf("Informações do CEP : %s\n", cep);
+            printf("\n\nInformações do CEP : %s\n", cep);
             printf("\nCEP:  %s", cepInfos[1]);
             printf("\nLOGRADOURO:  %s ", cepInfos[2]);
             printf("\nBAIRRO:  %s", cepInfos[3]);
@@ -162,8 +162,7 @@ int main()
     //get the cep from database or search CEP in viaCEP external service
     bool getCEP(char *cep)
     {
-        clearScreen();
-        printf("Aguarde um pouco.. estamos procurando seu CEP");
+        printf("\n\nAguarde um pouco.. estamos procurando seu CEP");
         //getting cep from table ceps
         const char *query = "select * from ceps where cep = '";
         char selectQueryAux[100];
@@ -343,7 +342,9 @@ int main()
                 if (makeLogin(false))
                 {
                     return true;
-                }else{
+                }
+                else
+                {
                     initInterface(true);
                     return false;
                 }
@@ -393,7 +394,8 @@ int main()
         scanf("%i", &pass1_num_pressed);
         if (pass1_num_pressed == 0)
         {
-            if(loginInterface()){
+            if (loginInterface())
+            {
                 return true;
             }
             else
@@ -403,11 +405,14 @@ int main()
         }
         else if (pass1_num_pressed == 1)
         {
-           if(registerInterface()){
-               return true;
-           }else{
-               return false;
-           }
+            if (registerInterface())
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         else
         {
@@ -418,22 +423,42 @@ int main()
     }
     //App program to use the function created above
 
-    void loggedApp(){
-        clearScreen();
-        printf("Olá, %s!\nFicamos muito felizes por acessar os serviçosCEPPER.\n", loggedUser.name);
-        printf("-Pressione 0 para pesquisar um CEP\n-Pressione 1 para sair");
+    void loggedApp(bool pass)
+    {
+
+        if (!pass)
+        {
+            clearScreen();
+            printf("Olá, %s!\nFicamos muito felizes por acessar os serviçosCEPPER.\n", loggedUser.name);
+        }
+        printf("\n\n-Pressione 0 para pesquisar um CEP\n-Pressione 1 para sair\n\n");
+        int pressed = NULL;
+        scanf("%i", &pressed);
+        if (pressed == 0)
+        {
+            char *userCEP[20];
+            printf("\n\nInsira o CEP que deseja buscar\n");
+            printf("CEP:");
+            scanf("%s", &userCEP);
+            getCEP(userCEP);
+            loggedApp(true);
+        }
+        else if (pressed == 1)
+        {
+            exit(1);
+        }
+        else
+        {
+            loggedApp(true);
+        }
     }
 
     bool app()
     {
-       if(initInterface(false)){
-           loggedApp();
-       }
-        // char *userCEP[20];
-        // printf("\n\nInsira o CEP que deseja buscar\n");
-        // printf("CEP:");
-        // scanf(" %s",&userCEP);
-        // getCEP(userCEP);
+        if (initInterface(false))
+        {
+            loggedApp(false);
+        }
     }
 
     app();
