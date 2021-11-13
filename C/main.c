@@ -22,6 +22,10 @@ int main()
     //database flag
     const int flag = 0;
 
+    //user name for interactive in program
+
+    char *userName[100];
+
     //database connection stabilized
     MYSQL *conn;
     //init mysql connection
@@ -215,6 +219,60 @@ int main()
         }
     }
 
+    bool searchLoginInDatabase(char *login, char*password){
+        //getting user from table users
+        char *query = "select name from users where email = '";
+        char selectQuery[100];
+        char selectQueryAux[100];
+        char selectQueryAuxForCPF[200];
+        char selectQueryAuxForCPF2[200];
+        char selectQueryAuxAux[200];
+        char selectQueryAuxAuxAux[200];
+        char selectQueryAuxAuxAuxAux[200];
+        char selectQueryAuxAuxAuxAuxAux[200];
+        //concact string to a right mysql query
+        strcat(strcpy(selectQuery, login), "' or cpf = '");
+        strcat(strcpy(selectQueryAux, query), selectQuery);
+        strcat(strcpy(selectQueryAuxForCPF, selectQueryAux), login);
+        strcat(strcpy(selectQueryAuxForCPF2, selectQueryAuxForCPF), "' ");
+        strcat(strcpy(selectQueryAuxAux,selectQueryAuxForCPF2), "and pass = '");
+        strcat(strcpy(selectQueryAuxAuxAux,selectQueryAuxAux), password);
+        strcat(strcpy(selectQueryAuxAuxAuxAux,selectQueryAuxAuxAux),"'");
+
+        printf("%s", selectQueryAuxAuxAuxAux);
+        return true;
+
+        
+    }
+
+    bool makeLogin(bool pass){
+        if(!pass){
+        printf("\nBem vindo ao Sistema de Login! por favor preencha os campos abaixo...\n");
+        }
+        char *login[50];
+        char *password[50];
+        printf("\nInsira seu Email ou CPF: ");
+        scanf("%s", &login);
+        if (strlen(login) < 10)
+        {
+            printf("Insira seu CPF ou Email corretamente!");
+            makeLogin(true);
+            return false;
+        }
+        printf("\nInsira sua senha:");
+        scanf(" %s", &password);
+        if(strlen(password)<2){
+            printf("Erro na autenticação, preencha os campos novamente!");
+            makeLogin(true);
+            return false;
+        }
+        if(searchLoginInDatabase(login,password)){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
     //Interface for user navigate in login and register.
     void initInterface(bool pass)
     {
@@ -226,6 +284,9 @@ int main()
             scanf("%i", &accept);
             if (accept == 0)
             {
+                if(makeLogin(false)){
+
+                }
             }
             else if (accept == 1)
             {
@@ -237,6 +298,7 @@ int main()
                 loginInterface();
             }
         }
+
         void registerInterface()
         {
             int accept = NULL;
@@ -244,6 +306,9 @@ int main()
             scanf("%i", &accept);
             if (accept == 0)
             {
+
+
+
             }
             else if (accept == 1)
             {
