@@ -22,14 +22,17 @@ int main()
     //database flag
     const int flag = 0;
 
-    //user name for interactive in program
-
-    char *userName[100];
-
     //database connection stabilized
     MYSQL *conn;
     //init mysql connection
     conn = mysql_init(NULL);
+
+    typedef struct
+    {
+        char *name; //define name of Logged user
+    } LoggedUser;
+
+    LoggedUser loggedUser;
 
     //verify if connection its nul for exit program
     if (conn == NULL)
@@ -46,6 +49,10 @@ int main()
     //If we arrived here, the connection is ok and we can make mysql querys!
 
     //!Below we have some methods that the program is using
+
+    void clearScreen(){
+     printf("\e[1;1H\e[2J");
+    }
 
     //timeout for C wait a little (special for request)
     void setTimeout(int milliSec)
@@ -131,8 +138,9 @@ int main()
         //if we really found the CEP in database
         if (cepInfos[1] && cepInfos[3])
         {
+        clearScreen();
             //CEP FOUNDED!
-            printf("\n\nInformações do CEP : %s\n", cep);
+            printf("Informações do CEP : %s\n", cep);
             printf("\nCEP:  %s", cepInfos[1]);
             printf("\nLOGRADOURO:  %s ", cepInfos[2]);
             printf("\nBAIRRO:  %s", cepInfos[3]);
@@ -154,7 +162,8 @@ int main()
     //get the cep from database or search CEP in viaCEP external service
     bool getCEP(char *cep)
     {
-        printf("\n\nAguarde um pouco.. estamos procurando seu CEP");
+        clearScreen();
+        printf("Aguarde um pouco.. estamos procurando seu CEP");
         //getting cep from table ceps
         const char *query = "select * from ceps where cep = '";
         char selectQueryAux[100];
@@ -219,35 +228,76 @@ int main()
         }
     }
 
-    bool searchLoginInDatabase(char *login, char*password){
+    //search login inside database
+    bool searchLoginInDatabase(char *login, char *password)
+    {
         //getting user from table users
         char *query = "select name from users where email = '";
         char selectQuery[100];
-        char selectQueryAux[100];
-        char selectQueryAuxForCPF[200];
-        char selectQueryAuxForCPF2[200];
-        char selectQueryAuxAux[200];
-        char selectQueryAuxAuxAux[200];
-        char selectQueryAuxAuxAuxAux[200];
-        char selectQueryAuxAuxAuxAuxAux[200];
+        char ConcactQueryAux[100];
+        char ConcactQueryAuxForCPF[200];
+        char ConcactQueryAuxForCPF2[200];
+        char ConcactQueryAuxAux[200];
+        char ConcactQueryAuxAuxAux[200];
+        char ConcactQueryAuxAuxAuxAux[200];
+        char ConcactQueryAuxAuxAuxAuxAux[200];
         //concact string to a right mysql query
         strcat(strcpy(selectQuery, login), "' or cpf = '");
-        strcat(strcpy(selectQueryAux, query), selectQuery);
-        strcat(strcpy(selectQueryAuxForCPF, selectQueryAux), login);
-        strcat(strcpy(selectQueryAuxForCPF2, selectQueryAuxForCPF), "' ");
-        strcat(strcpy(selectQueryAuxAux,selectQueryAuxForCPF2), "and pass = '");
-        strcat(strcpy(selectQueryAuxAuxAux,selectQueryAuxAux), password);
-        strcat(strcpy(selectQueryAuxAuxAuxAux,selectQueryAuxAuxAux),"'");
+        strcat(strcpy(ConcactQueryAux, query), selectQuery);
+        strcat(strcpy(ConcactQueryAuxForCPF, ConcactQueryAux), login);
+        strcat(strcpy(ConcactQueryAuxForCPF2, ConcactQueryAuxForCPF), "' ");
+        strcat(strcpy(ConcactQueryAuxAux, ConcactQueryAuxForCPF2), "and pass = '");
+        strcat(strcpy(ConcactQueryAuxAuxAux, ConcactQueryAuxAux), password);
+        strcat(strcpy(ConcactQueryAuxAuxAuxAux, ConcactQueryAuxAuxAux), "'");
 
-        printf("%s", selectQueryAuxAuxAuxAux);
-        return true;
-
-        
+        if (mysql_query(conn, ConcactQueryAuxAuxAuxAux))
+        {
+            //if we got an error, return nothing.
+            return false;
+        }
+        //storing result
+        MYSQL_RES *result = mysql_store_result(conn);
+        //getting num of fields like matriz [10]
+        int num_fields = mysql_num_fields(result);
+        //dispatch the rows
+        MYSQL_ROW row;
+        //create an char array to store the result
+        char *user[0];
+        //NULL the result for right validation
+        user[0] = NULL;
+        //while we have rows to be read, write it in the char array
+        while ((row = mysql_fetch_row(result)))
+        {
+            for (int i = 0; i < num_fields; i++)
+            {
+                user[i] = row[i] ? row[i] : "-";
+            }
+        }
+        //if we really found the USER in database
+        if (user[0])
+        {
+            //USER FOUNDED!
+            clearScreen();
+            loggedUser.name = user[0];
+            printf("Bem-vindo, %s", loggedUser.name);
+            return true;
+        }
+        else
+        {
+            //return false if we dont found nothing in database about that USER
+            printf("\nPerfil não encontrado.");
+            return false;
+        }
     }
 
-    bool makeLogin(bool pass){
-        if(!pass){
-        printf("\nBem vindo ao Sistema de Login! por favor preencha os campos abaixo...\n");
+    //sistem interface for login
+    bool makeLogin(bool pass)
+    {
+        clearScreen();
+        if (!pass)
+        {
+            clearScreen();
+            printf("Bem vindo ao Sistema de Login! por favor preencha os campos abaixo...\n");
         }
         char *login[50];
         char *password[50];
@@ -261,69 +311,81 @@ int main()
         }
         printf("\nInsira sua senha:");
         scanf(" %s", &password);
-        if(strlen(password)<2){
+        if (strlen(password) < 2)
+        {
             printf("Erro na autenticação, preencha os campos novamente!");
             makeLogin(true);
             return false;
         }
-        if(searchLoginInDatabase(login,password)){
+        if (searchLoginInDatabase(login, password))
+        {
             return true;
-        }else{
+        }
+        else
+        {
             return false;
         }
     }
 
     //Interface for user navigate in login and register.
-    void initInterface(bool pass)
+    bool initInterface(bool pass)
     {
         //login interface method
-        void loginInterface()
+        clearScreen();
+        bool loginInterface()
         {
+            clearScreen();
             int accept = NULL;
             printf("\nDeseja realmente prosseguir para a tela de login?\n-Pressione 0 para prosseguir\n-Pressione 1 para voltar a tela de início\n");
             scanf("%i", &accept);
             if (accept == 0)
             {
-                if(makeLogin(false)){
-
+                if (makeLogin(false))
+                {
+                    return true;
+                }else{
+                    initInterface(true);
+                    return false;
                 }
             }
             else if (accept == 1)
             {
                 initInterface(true);
+                return false;
             }
             else
             {
                 printf("\nPor favor, insira um item válido.. :");
                 loginInterface();
+                return false;
             }
         }
 
-        void registerInterface()
+        bool registerInterface()
         {
+            clearScreen();
             int accept = NULL;
             printf("\nDeseja realmente prosseguir para a tela de cadastro?\n-Pressione 0 para prosseguir\n-Pressione 1 para voltar a tela de início\n");
             scanf("%i", &accept);
             if (accept == 0)
             {
-
-
-
             }
             else if (accept == 1)
             {
                 initInterface(true);
+                return false;
             }
             else
             {
                 printf("\nPor favor, insira um item válido.. :");
                 registerInterface();
+                return false;
             }
         }
 
         if (!pass)
         {
-            printf("Seja bem-vindo ao CEPPER! seu pesquisador de CEPS particular.");
+            printf("\nSeja bem-vindo ao CEPPER! seu pesquisador de CEPS particular.");
             printf("\npor-favor, faça seu login ou se cadastre para continuar.");
         }
         printf("\n- Pressione 0 para realizar seu Login\n- Pressione 1 para realizar um Cadastro\n\n");
@@ -331,32 +393,49 @@ int main()
         scanf("%i", &pass1_num_pressed);
         if (pass1_num_pressed == 0)
         {
-            loginInterface();
+            if(loginInterface()){
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         else if (pass1_num_pressed == 1)
         {
-            registerInterface();
+           if(registerInterface()){
+               return true;
+           }else{
+               return false;
+           }
         }
         else
         {
             printf("Por favor, selecione um número válido!");
             initInterface(true);
+            return false;
         }
     }
     //App program to use the function created above
 
+    void loggedApp(){
+        clearScreen();
+        printf("Olá, %s!\nFicamos muito felizes por acessar os serviçosCEPPER.\n", loggedUser.name);
+        printf("-Pressione 0 para pesquisar um CEP\n-Pressione 1 para sair");
+    }
+
     bool app()
     {
-        initInterface(false);
+       if(initInterface(false)){
+           loggedApp();
+       }
         // char *userCEP[20];
         // printf("\n\nInsira o CEP que deseja buscar\n");
         // printf("CEP:");
         // scanf(" %s",&userCEP);
         // getCEP(userCEP);
     }
+
     app();
-    // while(true){
-    // app();
-    // }
     return 0;
 }
