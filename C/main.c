@@ -49,7 +49,7 @@ int main()
     //If we arrived here, the connection is ok and we can make mysql querys!
 
     //!Below we have some methods that the program is using
-
+    //clean bashs alive
     void clearScreen()
     {
         printf("\e[1;1H\e[2J");
@@ -139,6 +139,7 @@ int main()
         //if we really found the CEP in database
         if (cepInfos[1] && cepInfos[3])
         {
+            clearScreen();
             //CEP FOUNDED!
             printf("\n\nInformações do CEP : %s\n", cep);
             printf("\nCEP:  %s", cepInfos[1]);
@@ -162,7 +163,6 @@ int main()
     //get the cep from database or search CEP in viaCEP external service
     bool getCEP(char *cep)
     {
-        printf("\n\nAguarde um pouco.. estamos procurando seu CEP");
         //getting cep from table ceps
         const char *query = "select * from ceps where cep = '";
         char selectQueryAux[100];
@@ -206,7 +206,7 @@ int main()
                     printf("\n\nPor favor, insira um CEP válido.");
                     return false;
                 }
-                setTimeout(3000);
+                setTimeout(3500);
                 //Searching CEP in our MySQL table
                 if (searchCEP(selectQueryAux, cep))
                 {
@@ -284,7 +284,6 @@ int main()
         else
         {
             //return false if we dont found nothing in database about that USER
-            printf("\nPerfil não encontrado.");
             return false;
         }
     }
@@ -292,7 +291,6 @@ int main()
     //sistem interface for login
     bool makeLogin(bool pass)
     {
-        clearScreen();
         if (!pass)
         {
             clearScreen();
@@ -312,7 +310,7 @@ int main()
         scanf(" %s", &password);
         if (strlen(password) < 2)
         {
-            printf("Erro na autenticação, preencha os campos novamente!");
+            printf("Senha inválida, tente novamente!");
             makeLogin(true);
             return false;
         }
@@ -330,10 +328,8 @@ int main()
     bool initInterface(bool pass)
     {
         //login interface method
-        clearScreen();
         bool loginInterface()
         {
-            clearScreen();
             int accept = NULL;
             printf("\nDeseja realmente prosseguir para a tela de login?\n-Pressione 0 para prosseguir\n-Pressione 1 para voltar a tela de início\n");
             scanf("%i", &accept);
@@ -345,6 +341,7 @@ int main()
                 }
                 else
                 {
+                    printf("\nCredenciais erradas! por favor, tente novamente.\n");
                     initInterface(true);
                     return false;
                 }
@@ -386,6 +383,7 @@ int main()
 
         if (!pass)
         {
+            clearScreen();
             printf("\nSeja bem-vindo ao CEPPER! seu pesquisador de CEPS particular.");
             printf("\npor-favor, faça seu login ou se cadastre para continuar.");
         }
@@ -429,7 +427,7 @@ int main()
         if (!pass)
         {
             clearScreen();
-            printf("Olá, %s!\nFicamos muito felizes por acessar os serviçosCEPPER.\n", loggedUser.name);
+            printf("Olá, %s!\nFicamos muito felizes por acessar os serviços CEPPER.\n", loggedUser.name);
         }
         printf("\n\n-Pressione 0 para pesquisar um CEP\n-Pressione 1 para sair\n\n");
         int pressed = NULL;
