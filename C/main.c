@@ -453,7 +453,24 @@ int main()
             scanf("%s", &password);
             printf("\nConfirme sua senha: ");
             scanf("%s", &rePassword);
-
+            for (int i = 0; i < strlen(password); i++)
+            {
+                if (password[i] != rePassword[i])
+                {
+                    printf("\nATENÇÃO! As senhas são divergentes!");
+                    makeRegister(true);
+                    return false;
+                }
+            }
+            for (int i = 0; i < strlen(rePassword); i++)
+            {
+                if (password[i] != rePassword[i])
+                {
+                    printf("\nATENÇÃO! As senhas são divergentes!");
+                    makeRegister(true);
+                    return false;
+                }
+            }
             int confirm = false;
             clearScreen();
             printf("\n\nSeus dados:\nNome: %s\nData de nascimento: %s\nCPF: %s\nEmail: %s\nSenha: %s\n\nConfirma?\n-Pressione 0 para confirmar\n-Pressione 1 para cancelar\n\n", name, born, cpf, email, password);
@@ -488,15 +505,19 @@ int main()
                 strcat(strcpy(ConcactQueryAuxAuxAuxAuxAuxAuxAux, ConcactQueryAuxAuxAuxAuxAuxAux), "','");
                 strcat(strcpy(ConcactQueryAuxAuxAuxAuxAuxAuxAuxAux, ConcactQueryAuxAuxAuxAuxAuxAuxAux), password);
                 strcat(strcpy(ConcactQueryAuxAuxAuxAuxAuxAuxAuxAuxAux, ConcactQueryAuxAuxAuxAuxAuxAuxAuxAux), "');");
-                printf("%s", ConcactQueryAuxAuxAuxAuxAuxAuxAuxAuxAux);
                 if (mysql_query(conn, ConcactQueryAuxAuxAuxAuxAuxAuxAuxAuxAux))
                 {
                     //if we got an error, return nothing.
-                    printf("\n\nDeu erro na QUERY!!!\n");
                     return false;
                 }
-
-                return true;
+                if (searchLoginInDatabase(email, password))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             else
             {
@@ -504,8 +525,6 @@ int main()
                 initInterface(true);
                 return false;
             }
-
-            return false;
         }
 
         //login interface method

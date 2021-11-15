@@ -38,11 +38,11 @@ use cepper
 
 create table users(
 id smallint auto_increment primary key,
-name varchar(40) not null,
+name varchar(75) not null,
 born varchar(20) not null,
 cpf varchar(20) not null,
-email varchar(50) not null,
-pass varchar(30) not null
+email varchar(100) not null,
+pass varchar(100) not null
 );
 create table ceps(
 id smallint auto_increment primary key,
