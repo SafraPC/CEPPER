@@ -4,6 +4,7 @@
 #include <mysql/mysql.h>
 #include <time.h>
 #include <string.h>
+#include <ctype.h>
 
 int main()
 {
@@ -324,9 +325,153 @@ int main()
         }
     }
 
+    //method for verify if the arrays are equals
+    bool isDiff(char *array, char *validationArray)
+    {
+        const int arrayLength = strlen(array);
+        const int arrayValLength = strlen(validationArray);
+
+        bool error = false;
+        for (int i = 0; i < arrayLength; i++)
+        {
+            if (error)
+            {
+                break;
+            }
+            for (int j = 0; j < arrayValLength; j++)
+            {
+                if (array[i] == validationArray[j])
+                {
+                    break;
+                }
+                else if (j + 1 >= arrayValLength)
+                {
+                    error = true;
+                    break;
+                }
+            }
+        }
+        return error;
+    }
+
     //Interface for user navigate in login and register.
     bool initInterface(bool pass)
     {
+
+        //sistem register in database
+        bool makeRegister(bool pass)
+        {
+            if (!pass)
+            {
+                clearScreen();
+                printf("Bem-vindo ao sistema de Cadastro! preencha os campos abaixo para continuar ...\n");
+            }
+
+            //items to validate
+            /*
+        !name
+        !born
+        !cpf
+        !email
+        !pass
+        !rePass
+        */
+            char name[200];
+            char born[20];
+            char cpf[20];
+            char email[200];
+            char password[100];
+            char rePassword[100];
+
+            //array for validations
+            char *validLetters = "abcdefghijklmnopqrstuvwxyz";
+            char *validEmail = "abcdefghijklmnopqrstuvwxyz@.123456789";
+            char *validNumbers = "0123456789";
+            char *validDate = "0123456789/";
+
+            printf("\nInsira seu primeiro nome (sem espaços): ");
+            scanf("%s", &name);
+            char *auxName = name;
+            for (int i = 0; i < strlen(auxName); i++)
+            {
+                auxName[i] = tolower(auxName[i]);
+            }
+            bool difName = isDiff(name, validLetters);
+            if (difName)
+            {
+                printf("\n Nomes apenas podem conter letras! insira um nome válido, sem espaço. \n");
+                makeRegister(true);
+                return false;
+            }
+            printf("\nPerfeito! agora insira sua data de Nasc. (DD/MM/YYYY) Respectivamente.");
+            scanf("%s", born);
+            if (born[2] == '/' && born[5] == '/')
+            {
+                bool difDate = isDiff(born, validDate);
+                if (difDate)
+                {
+                    printf("\nInsira uma data válida! padrão (DD/MM/YYYY) \n");
+                    makeRegister(true);
+                    return false;
+                }
+            }
+            else
+            {
+                printf("\nInsira uma data válida com barras! padrão (DD/MM/YYYY) \n");
+                makeRegister(true);
+                return false;
+            }
+            printf("\nÓtimo! agora, por favor, insira seu CPF, (apenas números): ");
+            scanf("%s", &cpf);
+            if (strlen(cpf) != 11)
+            {
+                printf("\nATENÇÃO! um CPF contém apenas 11 digitos.");
+                makeRegister(true);
+                return false;
+            }
+            bool cpfDif = isDiff(cpf, validNumbers);
+            if (cpfDif)
+            {
+                printf("ATENÇÃO! CPF, deve conter apenas numeros");
+                makeRegister(true);
+                return false;
+            }
+            printf("\nIncrível! agora, por favor, insira seu Email: ");
+            scanf("%s", &email);
+            for (int i = 0; i < strlen(email); i++)
+            {
+                email[i] = tolower(email[i]);
+            }
+            bool emailDif = isDiff(email, validEmail);
+            if (emailDif)
+            {
+                printf("\nATENÇÃO! Emails não contém carácteres especiais além do @!");
+                makeRegister(true);
+                return false;
+            }
+            printf("\nPara finalizar, insira sua senha de login: ");
+            scanf("%s", &password);
+            printf("\nConfirme sua senha: ");
+            scanf("%s", &rePassword);
+
+            int confirm = false;
+            clearScreen();
+            printf("\n\nSeus dados:\nNome: %s\nData de nascimento: %s\nCPF: %s\nEmail: %s\nSenha: %s\n\nConfirma?\n-Pressione 0 para confirmar\n-Pressione 1 para cancelar\n\n", name, born, cpf, email, password);
+            scanf("%i", &confirm);
+            if (confirm == 0)
+            {
+                return true;
+            }
+            else
+            {
+                clearScreen();
+                initInterface(true);
+                return false;
+            }
+
+            return false;
+        }
+
         //login interface method
         bool loginInterface()
         {
@@ -359,6 +504,7 @@ int main()
             }
         }
 
+        //sistem register interface method
         bool registerInterface()
         {
             clearScreen();
@@ -367,6 +513,7 @@ int main()
             scanf("%i", &accept);
             if (accept == 0)
             {
+                makeRegister(false);
             }
             else if (accept == 1)
             {

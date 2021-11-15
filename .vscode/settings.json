@@ -13,6 +13,9 @@
 		"string_view": "c",
 		"initializer_list": "c",
 		"valarray": "c",
-		"string.h": "c"
+		"string.h": "c",
+		"random": "c",
+		"stdlib.h": "c",
+		"typeinfo": "c"
 	}
 }
