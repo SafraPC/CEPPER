@@ -460,6 +460,42 @@ int main()
             scanf("%i", &confirm);
             if (confirm == 0)
             {
+                /*
+                !req model :
+                ?insert into users(name,born,cpf,email,pass) values('Teste','06/10/2002','42413069800','leandrosafra@gmail.com','123');
+                */
+
+                char *query = "insert into users(name,born,cpf,email,pass) values('";
+                char selectQuery[100];
+                char ConcactQueryAux[300];
+                char ConcactQueryAuxAux[300];
+                char ConcactQueryAuxAuxAux[300];
+                char ConcactQueryAuxAuxAuxAux[300];
+                char ConcactQueryAuxAuxAuxAuxAux[400];
+                char ConcactQueryAuxAuxAuxAuxAuxAux[500];
+                char ConcactQueryAuxAuxAuxAuxAuxAuxAux[500];
+                char ConcactQueryAuxAuxAuxAuxAuxAuxAuxAux[600];
+                char ConcactQueryAuxAuxAuxAuxAuxAuxAuxAuxAux[600];
+
+                //concact string to a right mysql query
+                strcat(strcpy(selectQuery, query), name);
+                strcat(strcpy(ConcactQueryAux, selectQuery), "','");
+                strcat(strcpy(ConcactQueryAuxAux, ConcactQueryAux), born);
+                strcat(strcpy(ConcactQueryAuxAuxAux, ConcactQueryAuxAux), "','");
+                strcat(strcpy(ConcactQueryAuxAuxAuxAux, ConcactQueryAuxAuxAux), cpf);
+                strcat(strcpy(ConcactQueryAuxAuxAuxAuxAux, ConcactQueryAuxAuxAuxAux), "','");
+                strcat(strcpy(ConcactQueryAuxAuxAuxAuxAuxAux, ConcactQueryAuxAuxAuxAuxAux), email);
+                strcat(strcpy(ConcactQueryAuxAuxAuxAuxAuxAuxAux, ConcactQueryAuxAuxAuxAuxAuxAux), "','");
+                strcat(strcpy(ConcactQueryAuxAuxAuxAuxAuxAuxAuxAux, ConcactQueryAuxAuxAuxAuxAuxAuxAux), password);
+                strcat(strcpy(ConcactQueryAuxAuxAuxAuxAuxAuxAuxAuxAux, ConcactQueryAuxAuxAuxAuxAuxAuxAuxAux), "');");
+                printf("%s", ConcactQueryAuxAuxAuxAuxAuxAuxAuxAuxAux);
+                if (mysql_query(conn, ConcactQueryAuxAuxAuxAuxAuxAuxAuxAuxAux))
+                {
+                    //if we got an error, return nothing.
+                    printf("\n\nDeu erro na QUERY!!!\n");
+                    return false;
+                }
+
                 return true;
             }
             else
@@ -513,7 +549,16 @@ int main()
             scanf("%i", &accept);
             if (accept == 0)
             {
-                makeRegister(false);
+                if (makeRegister(false))
+                {
+                    return true;
+                }
+                else
+                {
+                    printf("\nAlgo deu errado..\n");
+                    initInterface(true);
+                    return false;
+                }
             }
             else if (accept == 1)
             {
@@ -522,7 +567,7 @@ int main()
             }
             else
             {
-                printf("\nPor favor, insira um item válido.. :");
+                printf("\nPor favor, pressione uma opção válida.. :");
                 registerInterface();
                 return false;
             }

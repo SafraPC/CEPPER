@@ -12,7 +12,7 @@ CEPPER é um projeto que irá capturar o CEP inserido pelo usuário e devolver s
 
 #Iniciando Server Javascript
 
-Para inicializar o CEP em sua máquina, será necessário: Node (Recomendada versão 14^), GCC (Compilador C), MySQL Server, MySQL Connector, Code-blocks e alguma IDE para criar um banco (DBeaver ou Workbench) ou Docker e Docker-compose.
+Para inicializar o CEP em sua máquina, será necessário: Node (Recomendada versão 14^), GCC (Compilador C), MySQL Server, MySQL Connector, Code-blocks, alguma IDE para criar o banco (DBeaver ou Workbench), Docker e Docker-compose.
 
 Caso seja sua primeira vez inicializando o projeto, será necessário baixar todas as bibliotecas javascript utilizadas no projeto. Portanto, insira o seguinte comando no terminal, na raíz do projeto :
 
@@ -39,12 +39,11 @@ use cepper
 create table users(
 id smallint auto_increment primary key,
 name varchar(40) not null,
-born varchar(11) not null,
+born varchar(20) not null,
 cpf varchar(20) not null,
 email varchar(50) not null,
 pass varchar(30) not null
 );
-
 create table ceps(
 id smallint auto_increment primary key,
 cep varchar(40),
@@ -83,3 +82,5 @@ Linux: caso sua distribuição for ubuntu, baixe .rem do site MySQL ou instale v
 CASO SUA DISTRIBUIÇÃO FOR ARCH, A UNICA FORMA É BAIXANDO AS LIBS MYSQL DA COMUNIDADE AUR.
 
 Feito tudo, basta inicializar o projeto no codeblocks (arquivo main.c)
+
+# OBRIGADO!
